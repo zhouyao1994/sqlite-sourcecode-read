@@ -139,6 +139,13 @@ if {[info command sqlite_orig]==""} {
   }
 }
 
+proc zhouOutput {var} {
+  puts "========begin========"
+  puts $var
+  puts "========end========"
+  puts "\n"
+}
+
 proc getFileRetries {} {
   if {![info exists ::G(file-retries)]} {
     #
@@ -818,6 +825,7 @@ proc do_test {name cmd expected} {
       } else {
         set ok [expr {[string compare $result $expected]==0}]
       }
+
       if {!$ok} {
         # if {![info exists ::testprefix] || $::testprefix eq ""} {
         #   error "no test prefix"
