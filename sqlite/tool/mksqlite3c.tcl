@@ -156,19 +156,22 @@ set s78 \
 # Insert a comment into the code
 #
 proc section_comment {text} {
-  global out s78
-  set n [string length $text]
-  set nstar [expr {60 - $n}]
-  set stars [string range $s78 0 $nstar]
-  puts $out "/************** $text $stars/"
 }
 
 # Read the source file named $filename and write it into the
 # sqlite3.c output file.  If any #include statements are seen,
 # process them appropriately.
 #
+
+
+close $out
+# 1. 关闭原来的out文件
+#2. 重命名out变量
+#3. 函数执行完成之后关闭out
 proc copy_file {filename} {
-  global seen_hdr available_hdr varonly_hdr cdecllist out
+  set out [open $filename.zhou w]
+#  puts $out
+  global seen_hdr available_hdr varonly_hdr cdecllist #out
   global addstatic linemacros useapicall
   set ln 0
   set tail [file tail $filename]
@@ -274,6 +277,7 @@ proc copy_file {filename} {
   }
   close $in
   section_comment "End of $tail"
+  close $out
 }
 
 
@@ -393,4 +397,4 @@ foreach file {
   copy_file tsrc/$file
 }
 
-close $out
+#close $out
