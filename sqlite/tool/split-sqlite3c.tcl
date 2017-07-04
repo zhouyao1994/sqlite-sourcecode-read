@@ -61,6 +61,7 @@ proc write_one_file {content filename} {
 #
 set all {}
 set N 0
+set filename_temp {}
 while {[regexp $BEGIN $line]} {
   set buf {}
   set n 0
@@ -68,10 +69,11 @@ while {[regexp $BEGIN $line]} {
 #  puts $line
   gather_one_file $line buf n fn
   if {$n+$N>=$MAX} {
-    write_one_file $all $fn
+    write_one_file $all $filename_temp
     set all {}
     set N 0
   }
+  set filename_temp $fn
   append all $buf
   incr N $n
   while {[gets $in line]>=0} {
