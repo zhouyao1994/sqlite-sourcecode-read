@@ -8,7 +8,7 @@
 # Splitting files up this way allows them to be used with older compilers
 # that cannot handle really long source files.
 #
-set MAX 32768    ;# Maximum number of lines per file.
+set MAX 32    ;# Maximum number of lines per file.
 
 set BEGIN {^/\*+ Begin file ([a-zA-Z0-9_.]+) \*+/}
 set END   {^/\*+ End of %s \*+/}
@@ -26,13 +26,15 @@ while {[gets $in line]} {
 # Gather the complete content of a file into memory.  Store the
 # content in $bufout.  Store the number of lines is $nout
 #
-proc gather_one_file {firstline bufout nout} {
+proc gather_one_file {firstline bufout nout filena} {
   regexp $::BEGIN $firstline all filename
+  puts $filename
   set end [format $::END $filename]
-  upvar $bufout buf $nout n
+  upvar $bufout buf $nout n $filena fn
   set buf $firstline\n
   global in
   set n 0
+  set fn $filename
   while {[gets $in line]>=0} {
     incr n
     append buf $line\n
@@ -44,13 +46,13 @@ proc gather_one_file {firstline bufout nout} {
 # Also add an appropriate #include to sqlite3-all.c
 #
 set filecnt 0
-proc write_one_file {content} {
+proc write_one_file {content filename} {
   global filecnt
   incr filecnt
-  set out [open sqlite3-$filecnt.c w]
+  set out [open sqlite3-$filecnt-$filename w]
   puts -nonewline $out $content
   close $out
-  puts $::out1 "#include \"sqlite3-$filecnt.c\""
+  puts $::out1 "#include \"sqlite3-$filecnt-$filename\""
 }
 
 # Continue reading input.  Store chunks in separate files and add
@@ -62,21 +64,25 @@ set N 0
 while {[regexp $BEGIN $line]} {
   set buf {}
   set n 0
-  gather_one_file $line buf n
+  set fn {}
+#  puts $line
+  gather_one_file $line buf n fn
   if {$n+$N>=$MAX} {
-    write_one_file $all
+    write_one_file $all $fn
     set all {}
     set N 0
   }
   append all $buf
   incr N $n
   while {[gets $in line]>=0} {
+#    puts $line
     if {[regexp $BEGIN $line]} break
     puts $out1 $line
   }
 }
 if {$N>0} {
-  write_one_file $all
+  write_one_file $all "the_last.c"
+#   puts $N
 }
 close $out1
 close $in
