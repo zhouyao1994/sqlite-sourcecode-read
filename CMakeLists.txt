@@ -10,6 +10,6 @@ add_definitions(-DSQLITE_DEBUG -DSQLITE_MEMDEBUG)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -dl")
 
 set(SOURCE_FILES main.cpp src/sqlite3-all.c)
-add_executable(sqlite_demo1 ${SOURCE_FILES} )
+add_executable(sqlread ${SOURCE_FILES} )
 
-target_link_libraries(sqlite_demo1 ${CMAKE_DL_LIBS})
+target_link_libraries(sqlread ${CMAKE_DL_LIBS})
